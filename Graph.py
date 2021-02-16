@@ -58,44 +58,58 @@ class Graph(object):
 
         return edges
 
-    def find_path(self, start_vertex, end_vertex, all_paths, path=None) -> list or None:
+    def find_path(self, start_vertex, target_vertex, path=None) -> list or None:
         if path is None:
-            return []
-
-        graph = self._graph_dict
+            path = []
 
         path = path + [start_vertex]
 
-        if start_vertex == end_vertex:
+        if start_vertex == target_vertex:
             return path
-
-        if start_vertex not in graph:
+        if start_vertex not in self._graph_dict:
             return None
 
-
-        # todo implement find all paths
-
-        # todo classes for edge,vertix
-
-        # todo edge class for source , dest(from to kind of gig){explicit definitions}
-
-        # todo create a graph function called level that finds the VALUE for each vertix that represents the level of each node
-
-        # TODO LEVELING ,NODE SHOULD have level higher than pre-decessors and lower than successors
-
-        # for a complicated graph ,you need efficient leveling!
-
-        # TODO make validation of leveling and seperate it
-
-
-        for vertix in graph[start_vertex]:
+        for vertix in self._graph_dict[start_vertex]:
 
             if vertix not in path:
 
-                extended_path = self.find_path(vertix, end_vertex, all_paths, path)
+                extended_path = self.find_path(vertix, target_vertex, path)
 
                 if extended_path:
-                    extended_path.append(all_paths)
+                    return extended_path
+
+        return None
+
+    def find_all_paths(self, start_vertex, target_vertex, path=None) -> list:
+
+        if (path is None):  # init list
+            path = []
+
+        all_paths = []
+
+        # path to unconnected vertex is itself
+        if (start_vertex not in self._graph_dict):
+            return [start_vertex]
+
+        # add current vertex to path
+        path.append(start_vertex)
+
+        # arrived to target
+        if start_vertex == target_vertex:
+            all_paths.append(path)
+            return all_paths
+
+        for vertex in self._graph_dict[start_vertex]:
+            if vertex not in path:
+
+                # get all sub paths
+                sub_paths = self.find_all_paths(vertex, target_vertex, path)
+
+                # append found sub_paths to all_paths
+                for valid_path in sub_paths:
+                    all_paths.append(valid_path)
+
+        return all_paths
 
     def is_connected(self, vertices_encountered=None, start_vertex=None):
         if vertices_encountered is None:
@@ -135,4 +149,16 @@ class Graph(object):
             return True
         return False
 
+        # done implement find all paths
 
+        # todo classes for edge,vertix  
+
+        # todo edge class for source , dest(from to kind of gig){explicit definitions}
+
+        # todo create a graph function called level that finds the VALUE for each vertix that represents the level of each node
+
+        # TODO LEVELING ,NODE SHOULD have level higher than pre-decessors and lower than successors
+
+        # for a complicated graph ,you need efficient leveling!
+
+        # TODO make validation of leveling and seperate it from implementation
