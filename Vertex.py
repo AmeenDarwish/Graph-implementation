@@ -19,7 +19,7 @@ class Vertex:
         self.__neighbors = {} if neighbors is None else neighbors
         self.__labels = {} if labels is None else labels
         self.__key = key
-        self.__level = None
+        self.__level = -1
         self.__is_source = None
         self.__is_sink = None
         self.__degree = len(self.__neighbors.values())

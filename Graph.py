@@ -6,26 +6,27 @@ from Edge import Edge
 
 class Graph(object):
 
-    def __init__(self, graph_dict=None, __in_graph_dict=None):
+    def __init__(self, graph_dict=None, __in_graph_dict=None, adjList=None):
+
         self.__graph_dict = {} if graph_dict is None else graph_dict
-        self._in_graph_dict = {} if __in_graph_dict is None else __in_graph_dict
-
-        self.__in_edges = None
-        self.__out_edges = None
-
-        self.changed = None
+        self.__in_graph_dict = {} if __in_graph_dict is None else __in_graph_dict
+        self.lst_key = {"a"}
+        self.__in_edges = []
+        self.__out_edges = []
+        self.__source = None
+        self.__max_level = 0
 
     def __copy__(self):
-        new_graph = Graph(graph_dict=dict(self.__graph_dict), __in_graph_dict=dict(self._in_graph_dict))
-        new_graph.__in_edges = dict(self.__in_edges)
-        new_graph.__out_edges = dict(self.__out_edges)
+        new_graph = Graph(graph_dict=dict(self.__graph_dict), __in_graph_dict=dict(self.__in_graph_dict))
+        new_graph.__in_edges = list(self.__in_edges)
+        new_graph.__out_edges = list(self.__out_edges)
         return new_graph
 
     def __delitem__(self, vertex: Vertex):
         self.remove_vertex(vertex.get_key())
 
-    def __sizeof__(self):
-        return self.__graph_dict.__sizeof__()
+    # def __sizeof__(self):
+    #     return self.__graph_dict.__sizeof__()
 
     def __xor__(self, other):
         # TODO implement me!
@@ -36,42 +37,46 @@ class Graph(object):
         return list(self.__graph_dict.keys())
 
     def get_out_edges(self) -> list:
-        if self.__out_edges is None:
-            self.__out_edges = self.__get_edges(self.__graph_dict)
 
         return self.__out_edges
 
-    def get_in_edges(self):
-        if self.__in_edges is None:
-            self.__in_edges = self.__get_edges(self._in_graph_dict)
+    def get_in_edges(self) -> list:
 
         return self.__in_edges
 
     def add_vertex(self, key) -> None:
-        new_vertex = Vertex(key=key)
+
+        new_vertex = Vertex(key)
         if new_vertex not in self.__graph_dict:
             self.__graph_dict[new_vertex] = []
-        if new_vertex not in self._in_graph_dict:
-            self._in_graph_dict[new_vertex] = []
+        if new_vertex not in self.__in_graph_dict:
+            self.__in_graph_dict[new_vertex] = []
 
     def remove_vertex(self, key):
+        # fixme , think of the case where you remove vertex in the middle
+        #  resulting in two graphs or one graph without vertex?
+        #  currently two graphs, since if a link is missing between the nodes , the other half is irrelevant ?
         del self.__graph_dict[key]
 
-    def merge_vertices(self, vertex1: Vertex, vertex2: Vertex):
-        # TODO implement me!
-        return
+    def add_edge(self, edge: tuple, weight=0):
 
-    def add_edge(self, edge: tuple):
-        v1 = edge[0]
-        v2 = edge[1]
+        v1 = Vertex(edge[0])
+        v2 = Vertex(edge[1])
+
         self.add_vertex(v1)
         self.add_vertex(v2)
 
-        # added
+        # added to adj list
         self.__graph_dict[v1].append(v2)
 
-        # synth
-        self._in_graph_dict[v2].append(v1)
+        v1.add_neighbor(v2)
+
+        # add to edges
+        out_edge = Edge(v1, v2, weight)
+        in_edge = Edge(v2, v1, weight)
+
+        self.__out_edges.append(out_edge)
+        self.__in_edges.append(in_edge)
 
     def __contains__(self, v: Vertex) -> bool:
         return True if v in self.__graph_dict else False
@@ -142,7 +147,7 @@ class Graph(object):
             vertices_encountered = set()
 
         out_dict = self.__graph_dict
-        in_dict = self._in_graph_dict
+        in_dict = self.__in_graph_dict
 
         vertices = (list(in_dict.keys()))
 
@@ -164,16 +169,18 @@ class Graph(object):
             return True
         return False
 
-    def source_function(self, edge) -> Vertex:
-        # TODO implement me!
-        return
+    def source_function(self, edge: Edge) -> Vertex:
+        return edge.get_source()
 
     def target_function(self, edge) -> Vertex:
-        # TODO implement me!
-        return
+
+        return edge.get_target()
 
     def __eq__(self, other):
         # TODO implement me!
+        # same_adj_list = self.__graph_dict == other.__graph_dict
+        # same_edges = self.__graph_dict == other.__graph_dict
+        # same_adj_list = self.__graph_dict == other.__graph_dict
         return
 
     def __ne__(self, other):
@@ -190,7 +197,7 @@ class Graph(object):
     def get_density(self):
         """ method to calculate the density of a graph """
         vertices = len(self.__graph_dict.keys())
-        edges = len(self.__in_edges())
+        edges = len(self.__in_edges)
         return 2 * edges / (vertices * (vertices - 1))
 
     def get_diameter(self):
@@ -206,26 +213,72 @@ class Graph(object):
         #   USE BFS HERE !!!!!!
         return
 
-    def get_level(self, v: Vertex):
-        # todo implement me!
-        #   USE BFS HERE !!!!!!
-        #   Use in_graphs ?
-        #   what if a vertex has two connections ; one to next neighbor(level+1) and one to sink(max(level)
-        return
+    def get_vertex_level(self, key):
+        # why not constant when you can constant
+
+        return self.__graph_dict[key].get_level()
+
+    def get_vertices_at_level(self, level):
+        res = []
+        for vertex in self.__graph_dict:
+            if vertex == level:
+                res.append(vertex.get_key())
+        return res
+
+    def __set_levels(self):
+        # max range is number of vertices
+
+        i = 0
+        for vertex in self.__graph_dict:
+            if len(self.__in_graph_dict[vertex]) == 0:
+                vertex.set_level(level=0)
+            if (vertex.get_level() == i):
+                for neigbor in vertex.get_neighbors():
+
+                    if (i + 1 > neigbor.get_level()):
+                        neigbor.set_level(i + 1)
+                        if (i + 1 > self.__max_level):
+                            self.__max_level = i + 1
+
+                i += 1
+                if (self.__max_level == len(self.__graph_dict.keys()) - 1):
+                    break
 
 
 # done implement find all paths
 
 # done class for vertex
 
-# todo class for edge
+# done class for edge
 
-# todo edge class for source , dest(from to kind of gig){explicit definitions}
+# done edge class for source , dest(from to kind of gig){explicit definitions} ?
 
-# todo create a graph function called level that finds the VALUE for each vertix that represents the level of each node
+# done create a graph function called level that finds the VALUE for each vertix that represents the level of each node
 
-# TODO LEVELING ,NODE SHOULD have level higher than pre-decessors and lower than successors
+# done LEVELING ,NODE SHOULD have level higher than pre-decessors and lower than successors
 
 # for a complicated graph ,you need efficient leveling!
 
 # TODO make validation of leveling and seperate it from implementation
+
+
+if __name__ == '__main__':
+    my_correct_graph = Graph()
+    my_correct_graph.add_edge(("A", "B"))
+    my_correct_graph.add_edge(("B", "C"))
+    my_correct_graph.add_edge(("X", "C"))
+    my_correct_graph.add_vertex("Y")
+    # graph not connected
+    # in degree is number of in edges going into this node
+    # out degree is number of out edges leaving this node
+    # source would be Vertice.in_degree = 0
+    # sink would be Vertice.out_degree = 0
+
+    # connected? ->
+
+    out_edges = my_correct_graph.get_out_edges()
+    in_edges = my_correct_graph.get_in_edges()
+
+    print(my_correct_graph.is_connected())
+    # print(out_edges)
+    # print(in_edges)
