@@ -1,32 +1,14 @@
 
 <!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
-***
-***
-***
-*** To avoid retyping too much info. Do a search and replace for the following:
 *** AmeenDarwish, Graph-implementation, twitter_handle, email, Elusive leveled DAG, project_description
 -->
 
 
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Issues][issues-shield]] [issues-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+
 
  
 
-<!-- PROJECT LOGO -->
 <br />
 
 
@@ -39,15 +21,9 @@
 
   <p align="center">
     An implementation of a Directed Acyclic Graph in Python (3.8).
-    The implementation includes levels,Cycle Checks,traversal,weights and a separator class for vertices and edges
+    The implementation includes levels,Cycle Checks,traversal,weights and a separated class for vertices and edges
     <br />
-    <a href="https://github.com/AmeenDarwish/Graph-implementation"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/AmeenDarwish/Graph-implementation">View Demo</a>
-    ·
     <a href="https://github.com/AmeenDarwish/Graph-implementation">Report Bug</a>
-    ·
     <a href="https://github.com/AmeenDarwish/Graph-implementation">Request Feature</a>
   </p>
 
@@ -196,8 +172,6 @@ You can get all sinks using:
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/AmeenDarwish/Graph-implementation/issues) 
-for a list of proposed features (and known issues).
 
 provided time; The following features would make the graph a much better tool:
                  
