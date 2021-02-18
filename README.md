@@ -93,6 +93,7 @@ None other than python random and  unit testing modules
 To create a simple Graph , simply call constructor and use the add_edges method to add any two edges.
 The format is edge(source,target,weight(optional))
 The vertices in each edge can be of any type that supports hashing and equality comparisons 
+
 ```sh
     #init
     graph = Graph()
