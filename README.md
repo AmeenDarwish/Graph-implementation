@@ -76,11 +76,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+None other than python random and  unit testing modules
 
 ### Installation
 
@@ -88,11 +84,7 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    git clone https://github.com/AmeenDarwish/Graph-implementation.git
    ```
-2. Install NPM packages
-   ```sh
-   npm install
-   ```
-
+2.Use graph!
 
 
 <!-- USAGE EXAMPLES -->
@@ -183,7 +175,7 @@ provided time; The following features would make the graph a much better tool:
 
 * Method to disconnect , instead of removing entire vertices and recreating edges,method would just unlink two vertices
 ```sh
-    def connect_vertex(key1,key2)
+    def disconnect_vertex(key1,key2)
 ``` 
 * is_cyclic method was never implemented due to time and test costs;
   it's the users responsibility, but it shouldn't be
