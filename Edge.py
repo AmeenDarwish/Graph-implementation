@@ -10,7 +10,7 @@ import collections
 
 class Edge(object):
 
-    def __init__(self, source: Vertex, target: Vertex, weight):
+    def __init__(self, source: Vertex, target: Vertex, weight=None):
 
         self.__target = target
         self.__weight = weight
@@ -44,12 +44,20 @@ class Edge(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        if isinstance(self.__weight, collections.Hashable):
-            return hash(self.__weight)
-        warnings.warn("Warning: Un-hashable value data type")
-        return NotImplemented
+        """
+        hash function assumes our weight value is hashable type
+        :return: hash of weight
+        """
+        # if isinstance(self.__weight, collections.Hashable):
+        return hash(self.__weight)
+        # warnings.warn("Warning: Un-hashable value data type")
+        # return NotImplemented
 
     def get_weight(self):
+        """
+
+        :return: NONE IF USER DIDNT DEFINE VALUE FOR WEIGHT
+        """
         return self.__weight
 
     def get_source(self):

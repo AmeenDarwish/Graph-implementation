@@ -4,13 +4,14 @@ from Edge import Edge
 import warnings
 
 
-
 class Graph(object):
 
     def __init__(self, graph_dict=None, __in_graph_dict=None, adjList=None):
 
         self.__graph_dict = {} if graph_dict is None else graph_dict
         self.__in_graph_dict = {} if __in_graph_dict is None else __in_graph_dict
+        self.__size = self.__graph_dict.__len__()
+        self.__vertices = {}
         self.__in_edges = []
         self.__out_edges = []
         self.__source = None
@@ -30,9 +31,15 @@ class Graph(object):
 
         self.remove_vertex(vertex.get_key())
 
+    def __repr__(self):
+        return 'lol'
+
     def __xor__(self, other):
         # define xor operator , interesting
         return
+
+    def get_size(self):
+        return self.__size
 
     def get_vertices(self):
         """
@@ -55,21 +62,28 @@ class Graph(object):
 
     def add_vertex(self, key) -> None:
         """
+        FOR USER
         This is probably redundunt by now , too tired to upgrade old implementation
         :param key:
         :return:
         """
-        newvertex = Vertex(key)
         if key not in self.__graph_dict:
-            self.__graph_dict[newvertex] = []
-        if key not in self.__in_graph_dict:
-            self.__in_graph_dict[newvertex] = []
+            new_vertex = Vertex(key)
+            self.__size+=1
 
-    def __add_vertex(self, vertex: Vertex):
-        if vertex not in self.__graph_dict:
-            self.__graph_dict[vertex] = []
-        if vertex not in self.__in_graph_dict:
-            self.__in_graph_dict[vertex] = []
+            self.__graph_dict[new_vertex] = [new_vertex]
+            self.__in_graph_dict[new_vertex] = [new_vertex]
+
+    # def __add_vertex(self, vertex: Vertex):
+    #     """
+    #     FOR CLASS
+    #     :param vertex:
+    #     :return:
+    #     """
+    #     # check if in mono directional graph
+    #     if vertex not in self.__graph_dict:
+    #         self.__graph_dict[vertex] = []
+    #         self.__in_graph_dict[vertex] = []
 
     def remove_vertex(self, key):
         """
@@ -82,49 +96,54 @@ class Graph(object):
         #  currently two graphs, since if a link is missing between the nodes , the other half is irrelevant ?
         self.__graph_dict.pop(key)
 
-    def add_edge(self, edge, weight=0):
+    def add_edge(self, key1, key2, weight=None):
         """
         Adds edge to graph , edge is expected to be an iterable of two values
         :param edge:
         :param weight:
         :return:
         """
-        v1 = Vertex(edge[0])
-        v2 = Vertex(edge[1])
 
-        if (v1 == v2):
+        if key1 == key2:
             return  # to avoid a self cycle
-        if v1 in self.__graph_dict:
-            if v2 in self.__graph_dict[v1]:
-                # to avoid multiples of edges
-                # there could be more efficient way, no time
-                return
-        self.__add_vertex(v1)
-        self.__add_vertex(v2)
 
-        # added to adj list
+        self.add_vertex(key1)
 
-        self.__graph_dict[v1].append(v2)
+        if key2 in self.__graph_dict[key1]:
+            # to avoid multiples of edges
+            # there could be more efficient way, no time
+            return
 
         # print("\033[1;30;41m Only thing going in circles around this code is your brain not this graph mister!")
         # do i raise exception , do i print error , do i assert ?
+        if key2 in self.__graph_dict:
+            if key1 in self.__graph_dict[key2]:
+                raise Exception("Cyclic vertices!")
 
-        if v1 in self.__graph_dict[v2]:
-            raise Exception("Cyclic vertices!")
+        self.__add_edge(key1, key2, weight=weight)
+
+    def __add_edge(self, key1, key2, weight=None):
+        self.add_vertex(key2)
+        # added to adj list
+        # print(self.__graph_dict)
+        # print(self.__graph_dict[key1])
+        v1 = self.__graph_dict[key1][0]
+        v2 = self.__graph_dict[key2][0]
 
         out_edge = Edge(v1, v2, weight)
-        v1.add_neighbor(v2)
-        # add to edges
         in_edge = Edge(v2, v1, weight)
 
-        # this is probably uselsess since i have all in edges
-        self.__in_graph_dict[v2].append(v1)
+        self.__graph_dict[key1].append(v2)
+        self.__in_graph_dict[key2].append(v1)
+
+        # add to edges
         self.__out_edges.append(out_edge)
         self.__in_edges.append(in_edge)
+
         self.changed = True
 
-    def __contains__(self, v: Vertex) -> bool:
-        return True if v in self.__graph_dict else False
+    def __contains__(self, key) -> bool:
+        return True if key in self.__graph_dict else False
 
     @staticmethod
     def __get_edges(target_graph: dict) -> list:
@@ -140,15 +159,41 @@ class Graph(object):
 
         return edges
 
+    @staticmethod
+    def has_cycles(graph):
+        """
+        Am going to try using tarjan's algorithm of strongly connected components
+        by using it to find if i manage to reach the same node by traversing through it's path
+        :return: True if graph has cycle , false otherwise
+        """
+        index = 0
+
+        return
+
     def get_vertice_degree_out(self, key):
+        """
+        :param key:
+        :return: vertices pointing outwards in graph
+        """
         if key in self.__graph_dict:
             return len(self.__graph_dict[key])
 
     def get_vertice_degree_in(self, key):
+        """
+        :param key:
+        :return: vertices pointing outwards in graph
+        """
         if key in self.__in_graph_dict:
             return len(self.__graph_dict[key])
 
     def find_path(self, start_vertex: Vertex, target_vertex: Vertex, path: list = None) -> list or None:
+        """
+
+        :param start_vertex:
+        :param target_vertex:
+        :param path: returns any valid path to
+        :return:
+        """
         if path is None:
             path = []
 
@@ -171,8 +216,15 @@ class Graph(object):
         return None
 
     def find_all_paths(self, key1, key2, path: list = None) -> list:
+        """
 
-        if (path is None):  # init list
+        :param key1:
+        :param key2:
+        :param path:
+        :returns: all valid paths between key1 and key2
+        """
+
+        if path is None:  # init list
             path = []
 
         all_paths = []
@@ -241,15 +293,6 @@ class Graph(object):
         """
         return self.__max_level  # i think am not sure
 
-    def is_cyclic(self):
-        """
-
-        :return: True if graph has cycle , false otherwise
-        """
-        # TODO implement me!
-
-        return
-
     def find_shortest_path(self, key1, key2):
         """
         :return:  shortest path between two vertices v1,v2 for key1,key2
@@ -259,6 +302,10 @@ class Graph(object):
         #   i can use levels if i had time , it would almost be the same, almost
         if key1 == key2:
             return 0
+        for vertice in self.__graph_dict[key1]:
+            if vertice.get_key() == key2:
+                return [key1, key2]
+
         source_level = self.__graph_dict[key1].get_level()
         target_level = self.__graph_dict[key1].get_level()
         if target_level > source_level:
@@ -277,12 +324,12 @@ class Graph(object):
         :param key:
         :return: level of vertex in graph ; constant time
         """
-        if (self.changed):
+        if self.changed:
             self.__set_levels()
             self.changed = False
 
         for vertex in self.__graph_dict:
-            if (vertex.get_key() == key):
+            if vertex.get_key() == key:
                 return vertex.get_level()
 
     def get_vertices_at_level(self, level):
@@ -316,19 +363,21 @@ class Graph(object):
 
         i = 0
         for vertex in self.__graph_dict:
-
-            if len(self.__in_graph_dict[vertex]) == 0:
+            if len(self.__in_graph_dict[vertex]) == 1:
                 vertex.set_level(level=0)
-            if vertex.get_level() == i:
-                for neighbor in self.__graph_dict[vertex]:
-                    if i + 1 > neighbor.get_level():
-                        neighbor.set_level(i + 1)
-                        if i + 1 > self.__max_level:
-                            self.__max_level = i + 1
+                # edit is source
+            for neighbor in self.__graph_dict[vertex]:
 
-                if self.__max_level == len(self.__graph_dict.keys()) - 1:
-                    break
-                i += 1
+                if neighbor == vertex:
+                    continue
+                if vertex.get_level() + 1 > neighbor.get_level():
+                    neighbor.set_level(vertex.get_level() + 1)
+                    if vertex.get_level() + 1 > self.__max_level:
+                        self.__max_level = vertex.get_level() + 1
+
+            if self.__max_level == len(self.__graph_dict.keys()) - 1:
+                break
+            i += 1
 
     def get_sources(self):
         """
@@ -340,7 +389,7 @@ class Graph(object):
         res = []
         for vertex in self.__graph_dict:
             # dont know if this isolated really helps here , not sure
-            if len(self.__in_graph_dict[vertex]) == 0 and not vertex.is_isolated():
+            if len(self.__in_graph_dict[vertex]) == 0:
                 res.append(vertex)
 
     def get_sinks(self):
@@ -353,7 +402,7 @@ class Graph(object):
         res = []
         for vertex in self.__graph_dict:
             # dont know if this isolated really helps here , not sure
-            if len(self.__graph_dict[vertex]) == 0 and not vertex.is_isolated():
+            if len(self.__graph_dict[vertex]) == 0:
                 res.append(vertex)
         return res
 
@@ -366,7 +415,6 @@ class Graph(object):
         """
         if vertices_encountered is None:
             vertices_encountered = set()
-            print(self.__graph_dict)
         out_dict = self.__graph_dict
         in_dict = self.__in_graph_dict
 
@@ -391,12 +439,12 @@ class Graph(object):
 
         return False
 
-
 if __name__ == '__main__':
     my_correct_graph = Graph()
-    my_correct_graph.add_edge(("A", "B"))
-    my_correct_graph.add_edge(("B", "C"))
-    my_correct_graph.add_edge(("X", "C"))
+    my_correct_graph.add_edge("A", "B")
+    my_correct_graph.add_edge("B", "C")
+    my_correct_graph.add_edge("X", "C")
+    my_correct_graph.add_edge("X", "D")
     my_correct_graph.add_vertex("Y")
 
     for v in my_correct_graph:

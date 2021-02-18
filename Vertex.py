@@ -29,7 +29,7 @@ class Vertex(object):
             Prints the animals name and what sound it makes
         """
 
-    def __init__(self, key=None, neighbors=None, labels=None):
+    def __init__(self, key=None, labels=None):
         """
         Parameters
         ----------
@@ -40,28 +40,22 @@ class Vertex(object):
         num_legs : int, optional
             The number of legs the animal (default is 4)
         """
-        self.__neighbors = {} if neighbors is None else neighbors
-        self.__labels = {} if labels is None else labels
         self.__key = key
-        self.__level = -1  # LEVELS! https://youtu.be/aQyXeLSL0II?t=10
+        self.__level = 0  # LEVELS! https://youtu.be/aQyXeLSL0II?t=10
         self.__is_source = None
         self.__is_sink = None
-        self.__degree = len(self.__neighbors.values())
+        self.__degree = 0
+        self.__labels = None
 
     def __str__(self):
         return f"{self.__key}"
 
     def __copy__(self):
         new_vertex = Vertex(self.__key)
-        new_vertex.__neighbors.update(self.__neighbors)
+        new_vertex.__is_source = self.__is_source
+        new_vertex.__is_sink = self.__is_sink
         return new_vertex
 
-    # def __eq__(self, other):
-    #     try:
-    #         return self.__key == other.
-    #     except:
-    #
-    #         raise Exception("Warning: no equal operator implementation for other data type")
     def __eq__(self, other):
         return self.get_key() == other
 
@@ -104,9 +98,6 @@ class Vertex(object):
         # warnings.warn("Warning: Un-hashable value data type")
         # return NotImplemented
 
-    def __iter__(self):
-        return iter(self.__neighbors.values())
-
     def set_key(self, key):
         self.__key = key
 
@@ -125,21 +116,6 @@ class Vertex(object):
     def get_level(self) -> int:
         level = self.__level
         return level
-
-    def add_neighbor(self, vertex, weight=None) -> None:
-        self.__neighbors[vertex] = weight
-
-    def remove_neighbor(self, vertex) -> None:
-        if vertex in self.__neighbors:
-            del self.__neighbors[vertex]
-        return
-
-    def get_neighbors(self) -> dict:
-        return dict(self.__neighbors)
-
-    def get_weight(self, neighbor):
-        if neighbor in self.__neighbors:
-            return self.__neighbors[neighbor]
 
     def is_isolated(self):
         return self.__degree == 0
